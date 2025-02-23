@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mensajes de promociones</title>
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Libreria para utilizar iconos-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+
+    <div class="contenedor">
+        <h1>MensajePromos</h1>
+        <p>"Esta herramienta te permite enviar mensajes fácilmente por vía WhatsApp con tus promociones y ofertas, todo desde tu navegador, mejorando la eficiencia y la interacción con tus clientes."</p>
+    
+        <label for="inputArchivo">Selecciona el tipo de archivo:</label>
+        <input type="file" id="inputArchivo" onchange="verificarArchivo()">
+
+        <!-- Botón para abrir la modal con las personas que tiene saldos negativos-->
+        <button id="verificarPagosBtn" style="display: none;" onclick="verificarArchivo()">Verificar personas</button>
+    </div>
+
+    <div class="imagenesContenedor">
+        <div class="imagen">
+            <img src="imagenes/soat.png" alt="">
+            <span class="textoEmergente">Tenemos promociones exclusivas en nuestro taller,¡Compra tu SOAT con nosotros y recibe beneficios únicos!</span>
+        </div>
+        <div class="imagen">
+            <img src="imagenes/mantenimiento_preventivo.png" alt="">
+            <span class="textoEmergente">Descuentos o precios especiales en paquetes que incluyan varias revisiones o servicios preventivos (Eje. Revisión de motor, frenos, suspensión, etc).</span>
+        </div>
+        <div class="imagen">
+            <img src="imagenes/carro.jpg" alt="">
+            <span class="textoEmergente">Descuentos en servicios especificos, como cambio de aceite, alineación, balanceo, revisión de frenos, etc.</span>
+        </div>
+        <div class="imagen">
+            <img src="imagenes/calendario.jpg" alt="">
+            <span class="textoEmergente">En el día del automóvil se pueden tener ofertas especiales, como descuentos en ciertos servicios o cambios de piezas.</span>
+        </div>
+    </div>
+
+    <!-- Modal para mostrar las personas pendientes-->
+    <div id="modalPersonas" class="modal">
+        <div class="contenidoModal">
+            <span class="cerrarBtn" onclick="cerrarModal()">&times;</span>
+            <h2>Enviar mensajes informativos a los siguientes clientes</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombres clientes</th>
+                        <th>Télefono</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaModal">
+                    <!-- Los datos de las personas se insertarán aquí -->
+                </tbody>
+            </table>
+
+            <div class="botones">
+                <button id="botonLeerQR"><i class="fa-brands fa-whatsapp"></i></button>
+                <!-- <button id="botonEscribirMensaje" onclick="mostrarEditorMensaje()">Escribir mensaje</button> -->
+                <button id="botonEscribirMensaje" style="display: none;">Escribir mensaje</button>
+                <button onclick="cerrarModal()">Cerrar</button>
+            </div>
+    
+        </div>
+    </div>
+
+    <!-- Contenedor para ver el código QR generado-->
+    <div id="tooltipQR" class="tooltip">
+        <h3>Escanea el código QR con WhatsApp</h3>
+        <img id="codigoQR" src="" alt="Código QR" style="max-width: 100%; max-height: 200px;">
+        <button onclick="cerrarTooltipQR()">Cerrar</button>
+    </div>
+
+    <!-- Contenedor con el (Spinner)-->
+    <div id="cargando" class="cargando" style="display: none;">
+        <div class="spinner"></div>
+        <p>Verificando conexión con WhatsApp</p>
+    </div>
+
+    <!-- Textarea para que el usuario escriba el mensaje-->
+    <div id="editorMensaje" style="display: none;">
+        <textarea id="mensajeUsuario" placeholder="Escribe tu mensaje aquí..."></textarea>
+        <button id="botonEnviarMensajes" onclick="enviarMensajes()" style="display:none;">Enviar Mensajes</button>
+        <span class="cerrarEditorMensaje" onclick="cerrarEditorMensaje()">&times;</span>
+    </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="script.js"></script>
+</body>
+</html>
