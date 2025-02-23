@@ -117,7 +117,7 @@ document.getElementById('botonLeerQR').addEventListener('click', function() {
 
      // Agregar un parámetro único a la URL para evitar cache
      const timestamp = new Date().getTime();
-    fetch(`http://localhost:3000/get-qrcode?timestamp=${timestamp}`)
+    fetch(`https://notificaciones-clientes-autosleo.onrender.com/get-qrcode?timestamp=${timestamp}`)
         .then(response => response.json())
         .then(data => {
             console.log("Respuesta del servidor:", data);
@@ -162,7 +162,7 @@ async function verificarWhatsappListo() {
 
     intervaloVerificacion = setInterval(async () => {
         try {
-            const response = await fetch('http://localhost:3000/whatsapp-ready');
+            const response = await fetch('https://notificaciones-clientes-autosleo.onrender.com/whatsapp-ready');
             const data = await response.json();
             if (data.ready) {
                 console.log('WhatsApp Web está listo');
@@ -287,7 +287,7 @@ function enviarMensajes(clientesRegistrados) {
         const mensajeFinal = mensajeBase + mensajeUsuario;  // Combina la parte fija con el mensaje del usuario
 
         // Enviar mensaje a la persona
-        fetch('http://localhost:3000/enviar-mensaje', {
+        fetch('https://notificaciones-clientes-autosleo.onrender.com/enviar-mensaje', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ telefono: persona.telefono, mensaje: mensajeFinal })
@@ -347,7 +347,7 @@ function ocultarSpinnerYBotones(exito) {
 
 function cerrarSesionWhatsapp() {
     // Aquí se llama a la ruta para cerrar sesión
-    fetch('http://localhost:3000/cerrar-sesion', {
+    fetch('https://notificaciones-clientes-autosleo.onrender.com/cerrar-sesion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
     })

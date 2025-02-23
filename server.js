@@ -7,7 +7,7 @@ const qrcode = require('qrcode');
 const app = express();
 
 const corsOptions = {
-    origin: process.env.NODE_ENV === 'production' ? 'https://tudominio.com' : 'http://localhost:3000',
+    origin: process.env.NODE_ENV === 'production' ? 'https://notificaciones-clientes-autosleo.onrender.com' : 'http://localhost:3000',
     methods: ['GET', 'POST'],
 };
 app.use(cors(corsOptions));
