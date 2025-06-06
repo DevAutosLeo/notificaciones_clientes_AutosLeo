@@ -20,37 +20,76 @@ app.use(express.json());
 app.use(express.static(__dirname));
 
 // Inicializamos el cliente de WhatsApp
-const client = new Client();
-
+// const client = new Client();
+let client = null;
 let whatsappListo = false;
 let qrData = null; // Almacenar el último QR generado
 let qrEsperando = false; // Indica si se está esperando que el QR sea escaneado
 let qrTiempoEspera = null; // Variable para controlar el tiempo de espera del QR
+let clienteInicializado = false;
+
+app.get('/iniciar-whatsapp', (req, res) => {
+    if (clienteInicializado) {
+        return res.status(200).json({ message: 'Cliente ya esta inicializado'});
+    }
+
+    client = new Client();
+    clienteInicializado = true;
+    let qrAceptado = false;
+
+    let tiempoCaducadoQR = setTimeout(() => {
+        if (!whatsappListo) {
+            console.log('QR no escaneado a tiempo. Limpiando datos del cliente');
+            client.destroy();
+            client = null;
+            clienteInicializado = false;
+            qrData = null;
+        }
+    }, 30000); // 30 segundos esta activo el QR
+
+    client.on('qr', (qr) => {
+        if (!qrAceptado && !whatsappListo) {
+            console.log('QR generado: ', qr);
+            qrData = qr;
+            qrAceptado = true;
+        } else {
+            console.log('QR adicional ignorado');
+        }
+    });
+    client.on('ready', () => {
+        console.log('WhatsApp Web está listo');
+        whatsappListo = true; // Marcar que WhatsApp Web está listo
+        clearTimeout(tiempoCaducadoQR);
+    });
+
+    client.initialize();
+    res.status(200).json({ message: 'Comenzando inicialización' });
+});
 
 // Solo generamos el QR cuando el cliente haga clic en el boton de WhatsApp
-client.on('qr', (qr) => {
-    console.log('QR generado:', qr);  // Este es el QR crudo de WhatsApp Web.
-    qrData = qr;
+// client.on('qr', (qr) => {
+//     console.log('QR generado:', qr);  // Este es el QR crudo de WhatsApp Web.
+//     qrData = qr;
 
-    // Si es la primera vez que se genera el QR, empezar a esperar
-    if (!qrEsperando) {
-        qrEsperando = true; // Indicamos que estamos esperando que se escanee el QR
-        // Configurar un tiempo de espera para el Qr
-        clearTimeout(qrTiempoEspera);
-        qrTiempoEspera = setTimeout(() => {
-            console.log('Tiempo de espera del QR ha expirado');
-            qrEsperando = false;
-        }, 120000); // 2 minutos
-    }
-});
+//     // Si es la primera vez que se genera el QR, empezar a esperar
+//     if (!qrEsperando) {
+//         qrEsperando = true; // Indicamos que estamos esperando que se escanee el QR
+//         // Configurar un tiempo de espera para el Qr
+//         clearTimeout(qrTiempoEspera);
+//         qrTiempoEspera = setTimeout(() => {
+//             console.log('Tiempo de espera del QR ha expirado');
+//             qrEsperando = false;
+//         }, 120000); // 2 minutos
+//     }
+// });
 
 // Ruta para obtener el QR
 app.get('/get-qrcode', (req, res) => {
     console.log('Solicitud recibida para obtener el QR');
 
     // Verifica si hay un QR disponible
-    if (!qrEsperando || !qrData) {
-        return res.status(400).json({ error: 'El tiempo para escanear el código QR ha caducado. Por favor, genera un nuevo código QR y escanéalo lo más pronto posible.' });
+    if (!qrData) {
+        return res.status(400).json({ error: 'QR aún no esta disponible' });
     }
 
     // Generar URL base64 del QR más reciente
@@ -65,24 +104,20 @@ app.get('/get-qrcode', (req, res) => {
     });
 });
 
-client.on('ready', () => {
-    console.log('WhatsApp Web está listo');
-    whatsappListo = true; // Marcar que WhatsApp Web está listo
-    qrEsperando = false; // Detener la espera del QR cuando ya está listo
-});
-
-client.initialize();
-
 // Ruta para verificar si WhatsApp Web está listo
-app.get('/whatsapp-ready', (req, res) => {
-    // Verificamos solo si no estamos esperando el QR
-    if (!qrEsperando && whatsappListo) {
-        console.log('WhatsApp Web está listo:', whatsappListo);
-        return res.json({ ready: whatsappListo });
-    }
+// app.get('/whatsapp-ready', (req, res) => {
+//     // Verificamos solo si no estamos esperando el QR
+//     if (!qrEsperando && whatsappListo) {
+//         console.log('WhatsApp Web está listo:', whatsappListo);
+//         return res.json({ ready: whatsappListo });
+//     }
 
-    console.log('Aún esperando el QR...');
-    res.json({ ready: false });
+//     console.log('Aún esperando el QR...');
+//     res.json({ ready: false });
+// });
+
+app.get('/whatsapp-ready', (req, res) => {
+    res.json({ ready: whatsappListo });
 });
 
 // Función para formatear el número de teléfono
@@ -124,27 +159,46 @@ app.post('/enviar-mensaje', async (req, res) => {
 });
 
 // Ruta para cerrar sesión
-app.post('/cerrar-sesion', (req, res) => {
-    if (client) {
-        // Intentar cerrar la sesión y destruir el cliente
-        client.logout().then(() => {
-            console.log("Sesión cerrada exitosamente.");
-            whatsappListo = false; // Restablecer estado 'listo'
-            client.destroy(); // Asegurarse de destruir el cliente
-            console.log("Cliente destruido.");
+// app.post('/cerrar-sesion', (req, res) => {
+//     if (client) {
+//         // Intentar cerrar la sesión y destruir el cliente
+//         client.logout().then(() => {
+//             console.log("Sesión cerrada exitosamente.");
+//             whatsappListo = false; // Restablecer estado 'listo'
+//             client.destroy(); // Asegurarse de destruir el cliente
+//             console.log("Cliente destruido.");
 
-            // Reiniciar el cliente para generar nuevo QR
-            client.initialize().then(() => {
-                console.log("Cliente reiniciado correctamente.");
-                res.status(200).json({ message: 'Sesión cerrada y cliente reiniciado' });
-            }).catch(err => {
-                console.error("Error al reiniciar el cliente:", err);
-                res.status(500).json({ error: 'Error al reiniciar el cliente' });
-            });
-        }).catch(err => {
-            console.error("Error al cerrar sesión:", err);
+//             // Reiniciar el cliente para generar nuevo QR
+//             client.initialize().then(() => {
+//                 console.log("Cliente reiniciado correctamente.");
+//                 res.status(200).json({ message: 'Sesión cerrada y cliente reiniciado' });
+//             }).catch(err => {
+//                 console.error("Error al reiniciar el cliente:", err);
+//                 res.status(500).json({ error: 'Error al reiniciar el cliente' });
+//             });
+//         }).catch(err => {
+//             console.error("Error al cerrar sesión:", err);
+//             res.status(500).json({ error: 'Error al cerrar sesión' });
+//         });
+//     } else {
+//         res.status(400).json({ error: 'No se ha iniciado sesión' });
+//     }
+// });
+
+app.post('/cerrar-sesion', async (req, res) => {
+    if (client) {
+        try {
+            await client.logout();
+            console.log("Sesión cerrada exitosamente");
+            client = null;
+            whatsappListo = false;
+            clienteInicializado = false;
+            qrData = null;
+            res.status(200).json({ message: 'Sesión cerrada y cliente reiniciado' });
+        } catch (err) {
+            console.error("Error al cerrar sesión: ", err);
             res.status(500).json({ error: 'Error al cerrar sesión' });
-        });
+        }
     } else {
         res.status(400).json({ error: 'No se ha iniciado sesión' });
     }
