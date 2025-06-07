@@ -1,4 +1,4 @@
-window.API_URL = window.location.hostname === "localhost" ? "http://localhost:3000" : "https://tu-api.up.railway.app";
+window.API_URL = window.location.hostname === "localhost" ? "http://localhost:3000" : "notificacionesclientesautosleo-production.up.railway.app";
 
 let clientesRegistrados = [];
 let tiempoLimiteQR = 20000; // Tiempo de espera es de 20 seg
