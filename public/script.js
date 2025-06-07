@@ -108,7 +108,7 @@ async function obtenerQRConReintentos(reintentos = 10, delay = 30000) {
     for (let i = 0; i < reintentos; i++) {
         try {
             const tiempoEspera = new Date().getTime();
-            const qrResp = await fetch(`http://localhost:3000/get-qrcode?timestamp=${tiempoEspera}`);
+            const qrResp = await fetch(`https://notificacionesclientesautosleo-production.up.railway.app/get-qrcode?timestamp=${tiempoEspera}`);
             if (qrResp.ok) {
                 const qrData = await qrResp.json();
                 if (qrData.qrUrl) {
@@ -180,7 +180,7 @@ document.getElementById('botonLeerQR').addEventListener('click', async function 
     document.getElementById('cargando').style.display = 'block';
 
     try {
-        const iniciarResp = await fetch('http://localhost:3000/iniciar-whatsapp');
+        const iniciarResp = await fetch('https://notificacionesclientesautosleo-production.up.railway.app/iniciar-whatsapp');
         const iniciarData = await iniciarResp.json();
         console.log('Inicializacion cliente: ', iniciarData.message);
 
@@ -222,7 +222,7 @@ async function verificarWhatsappListo() {
     intervaloVerificacion = setInterval(async () => {
         intentos++;
         try {
-            const response = await fetch('http://localhost:3000/whatsapp-ready');
+            const response = await fetch('https://notificacionesclientesautosleo-production.up.railway.app/whatsapp-ready');
             const data = await response.json();
             if (data.ready) {
                 console.log('WhatsApp Web está listo');
@@ -411,7 +411,7 @@ async function enviarMensajes(clientesRegistrados) {
         const mensajeFinal = mensajeBase + mensajeUsuario;  // Combina la parte fija con el mensaje del usuario
     
         try {
-            const response = await fetch('http://localhost:3000/enviar-mensaje', {
+            const response = await fetch('https://notificacionesclientesautosleo-production.up.railway.app/enviar-mensaje', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ telefono: persona.telefono, mensaje: mensajeFinal })
@@ -466,7 +466,7 @@ function ocultarSpinnerYBotones(exito) {
 
 function cerrarSesionWhatsapp() {
     // Aquí se llama a la ruta para cerrar sesión
-    fetch('http://localhost:3000/cerrar-sesion', {
+    fetch('https://notificacionesclientesautosleo-production.up.railway.app/cerrar-sesion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
     })
