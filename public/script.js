@@ -1,5 +1,3 @@
-window.API_URL = window.location.hostname === "localhost" ? "http://localhost:3000" : "notificacionesclientesautosleo-production.up.railway.app";
-
 let clientesRegistrados = [];
 let tiempoLimiteQR = 20000; // Tiempo de espera es de 20 seg
 let contadorTiempoQR;
@@ -106,11 +104,11 @@ function cerrarModal() {
     document.getElementById('modalPersonas').style.display = 'none';
 }
 
-async function obtenerQRConReintentos(reintentos = 10, delay = 20000) {
+async function obtenerQRConReintentos(reintentos = 10, delay = 30000) {
     for (let i = 0; i < reintentos; i++) {
         try {
             const tiempoEspera = new Date().getTime();
-            const qrResp = await fetch(`${window.API_URL}/get-qrcode?timestamp=${tiempoEspera}`);
+            const qrResp = await fetch(`http://localhost:3000/get-qrcode?timestamp=${tiempoEspera}`);
             if (qrResp.ok) {
                 const qrData = await qrResp.json();
                 if (qrData.qrUrl) {
@@ -182,7 +180,7 @@ document.getElementById('botonLeerQR').addEventListener('click', async function 
     document.getElementById('cargando').style.display = 'block';
 
     try {
-        const iniciarResp = await fetch(`${window.API_URL}/iniciar-whatsapp`);
+        const iniciarResp = await fetch('http://localhost:3000/iniciar-whatsapp');
         const iniciarData = await iniciarResp.json();
         console.log('Inicializacion cliente: ', iniciarData.message);
 
@@ -224,7 +222,7 @@ async function verificarWhatsappListo() {
     intervaloVerificacion = setInterval(async () => {
         intentos++;
         try {
-            const response = await fetch(`${window.API_URL}/whatsapp-ready`);
+            const response = await fetch('http://localhost:3000/whatsapp-ready');
             const data = await response.json();
             if (data.ready) {
                 console.log('WhatsApp Web está listo');
@@ -413,7 +411,7 @@ async function enviarMensajes(clientesRegistrados) {
         const mensajeFinal = mensajeBase + mensajeUsuario;  // Combina la parte fija con el mensaje del usuario
     
         try {
-            const response = await fetch(`${window.API_URL}/enviar-mensaje`, {
+            const response = await fetch('http://localhost:3000/enviar-mensaje', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ telefono: persona.telefono, mensaje: mensajeFinal })
@@ -468,7 +466,7 @@ function ocultarSpinnerYBotones(exito) {
 
 function cerrarSesionWhatsapp() {
     // Aquí se llama a la ruta para cerrar sesión
-    fetch(`${window.API_URL}/cerrar-sesion`, {
+    fetch('http://localhost:3000/cerrar-sesion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
     })

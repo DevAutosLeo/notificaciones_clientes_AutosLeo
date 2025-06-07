@@ -17,7 +17,7 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 // Archivos estáticos
-app.use(express.static(__dirname));
+app.use(express.static('public'));
 
 // Inicializamos el cliente de WhatsApp
 // const client = new Client();
@@ -84,65 +84,65 @@ app.get('/iniciar-whatsapp', (req, res) => {
 // });
 
 // Ruta para obtener el QR
-// app.get('/get-qrcode', (req, res) => {
-//     console.log('Solicitud recibida para obtener el QR');
-
-//     // Verifica si hay un QR disponible
-//     if (!qrData) {
-//         return res.status(400).json({ error: 'QR aún no esta disponible' });
-//     }
-
-//     // Generar URL base64 del QR más reciente
-//     qrcode.toDataURL(qrData, (err, url) => {
-//         if (err) {
-//             console.error('Error al generar el QR:', err);
-//             return res.status(500).json({ error: 'Error al generar el QR' });
-//         }
-
-//         // Enviar la URL del QR generado en base64 al frontend
-//         res.json({ qrUrl: url });
-//     });
-// });
-
-app.get('/get-qrcode', async (req, res) => {
+app.get('/get-qrcode', (req, res) => {
     console.log('Solicitud recibida para obtener el QR');
 
-    const esperarPorQR = () => {
-        return new Promise((resolve, reject) => {
-            const interval = 500;
-            const tiempoLimite = 10000;
-            let tiempoEsperado = 0;
-
-            const checker = setInterval(() => {
-                if (qrData) {
-                    clearInterval(checker);
-                    resolve(qrData);
-                } else {
-                    tiempoEsperado += interval;
-                    if (tiempoEsperado >= tiempoLimite) {
-                        clearInterval(checker);
-                        reject(new Error('QR no disponible a tiempo'));
-                    }
-                }
-            }, interval);
-        });
-    };
-    try {
-        const qr = await esperarPorQR();
-        qrcode.toDataURL(qr, (err, url) => {
-            if (err) {
-                console.error('Error al generar el QR:', err);
-                return res.status(500).json({ error: 'Error al generar el QR' });
-            }
-
-            // Enviar la URL del QR generado en base64 al frontend
-            res.json({ qrUrl: url });
-    });
-    } catch (error) {
-        console.warn('Tiempo de espera agotado sin recibir el QR');
+    // Verifica si hay un QR disponible
+    if (!qrData) {
         return res.status(400).json({ error: 'QR aún no esta disponible' });
     }
+
+    // Generar URL base64 del QR más reciente
+    qrcode.toDataURL(qrData, (err, url) => {
+        if (err) {
+            console.error('Error al generar el QR:', err);
+            return res.status(500).json({ error: 'Error al generar el QR' });
+        }
+
+        // Enviar la URL del QR generado en base64 al frontend
+        res.json({ qrUrl: url });
+    });
 });
+
+// app.get('/get-qrcode', async (req, res) => {
+//     console.log('Solicitud recibida para obtener el QR');
+
+//     const esperarPorQR = () => {
+//         return new Promise((resolve, reject) => {
+//             const interval = 500;
+//             const tiempoLimite = 30000;
+//             let tiempoEsperado = 0;
+
+//             const checker = setInterval(() => {
+//                 if (qrData) {
+//                     clearInterval(checker);
+//                     resolve(qrData);
+//                 } else {
+//                     tiempoEsperado += interval;
+//                     if (tiempoEsperado >= tiempoLimite) {
+//                         clearInterval(checker);
+//                         reject(new Error('QR no disponible a tiempo'));
+//                     }
+//                 }
+//             }, interval);
+//         });
+//     };
+//     try {
+//         const qr = await esperarPorQR();
+//         qrcode.toDataURL(qr, (err, url) => {
+//             if (err) {
+//                 console.error('Error al generar el QR:', err);
+//                 return res.status(500).json({ error: 'Error al generar el QR' });
+//             }
+
+//             // Enviar la URL del QR generado en base64 al frontend
+//             res.json({ qrUrl: url });
+//     });
+//     } catch (error) {
+//         console.warn('Tiempo de espera agotado sin recibir el QR');
+//         return res.status(400).json({ error: 'QR aún no esta disponible' });
+//     }
+// });
 
 // Ruta para verificar si WhatsApp Web está listo
 // app.get('/whatsapp-ready', (req, res) => {
