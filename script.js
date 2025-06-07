@@ -184,7 +184,7 @@ document.getElementById('botonLeerQR').addEventListener('click', async function 
         const iniciarData = await iniciarResp.json();
         console.log('Inicializacion cliente: ', iniciarData.message);
 
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 16000));
 
         const qrUrl = await obtenerQRConReintentos();
 
