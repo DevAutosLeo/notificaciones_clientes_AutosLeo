@@ -66,23 +66,6 @@ app.get('/iniciar-whatsapp', (req, res) => {
     res.status(200).json({ message: 'Comenzando inicialización' });
 });
 
-// Solo generamos el QR cuando el cliente haga clic en el boton de WhatsApp
-// client.on('qr', (qr) => {
-//     console.log('QR generado:', qr);  // Este es el QR crudo de WhatsApp Web.
-//     qrData = qr;
-
-//     // Si es la primera vez que se genera el QR, empezar a esperar
-//     if (!qrEsperando) {
-//         qrEsperando = true; // Indicamos que estamos esperando que se escanee el QR
-//         // Configurar un tiempo de espera para el Qr
-//         clearTimeout(qrTiempoEspera);
-//         qrTiempoEspera = setTimeout(() => {
-//             console.log('Tiempo de espera del QR ha expirado');
-//             qrEsperando = false;
-//         }, 120000); // 2 minutos
-//     }
-// });
-
 // Ruta para obtener el QR
 app.get('/get-qrcode', (req, res) => {
     console.log('Solicitud recibida para obtener el QR');
@@ -199,32 +182,6 @@ app.post('/enviar-mensaje', async (req, res) => {
 });
 
 // Ruta para cerrar sesión
-// app.post('/cerrar-sesion', (req, res) => {
-//     if (client) {
-//         // Intentar cerrar la sesión y destruir el cliente
-//         client.logout().then(() => {
-//             console.log("Sesión cerrada exitosamente.");
-//             whatsappListo = false; // Restablecer estado 'listo'
-//             client.destroy(); // Asegurarse de destruir el cliente
-//             console.log("Cliente destruido.");
-
-//             // Reiniciar el cliente para generar nuevo QR
-//             client.initialize().then(() => {
-//                 console.log("Cliente reiniciado correctamente.");
-//                 res.status(200).json({ message: 'Sesión cerrada y cliente reiniciado' });
-//             }).catch(err => {
-//                 console.error("Error al reiniciar el cliente:", err);
-//                 res.status(500).json({ error: 'Error al reiniciar el cliente' });
-//             });
-//         }).catch(err => {
-//             console.error("Error al cerrar sesión:", err);
-//             res.status(500).json({ error: 'Error al cerrar sesión' });
-//         });
-//     } else {
-//         res.status(400).json({ error: 'No se ha iniciado sesión' });
-//     }
-// });
-
 app.post('/cerrar-sesion', async (req, res) => {
     if (client) {
         try {
